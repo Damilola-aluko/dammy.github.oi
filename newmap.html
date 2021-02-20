@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>NigeriaMap</title>
+<meta name="viewport" content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.js"></script>
+<link href="https://api.mapbox.com/mapbox-gl-js/v2.1.1/mapbox-gl.css" rel="stylesheet" />
+<style>
+	body { margin: 0; padding: 0; }
+	#map { position: absolute; top: 0; bottom: 0; width: 100%; }
+</style>
+</head>
+<body>
+<style>
+    .boxdraw {
+        background: rgba(56, 135, 190, 0.1);
+        border: 2px solid #3887be;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 0;
+        height: 0;
+    }
+
+</style>
+<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.min.js"></script>
+<link
+rel="stylesheet"
+href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.5.1/mapbox-gl-geocoder.css"
+type="text/css"
+/>
+
+<div id="map"></div>
+
+<script>
+
+	mapboxgl.accessToken = 'pk.eyJ1IjoiZ2VvaW5mb3RlY2giLCJhIjoiY2trbWRqbW5yMnJ0aDJ3cXVuODUxZ2trZCJ9.un00BS15Sp-gcNwG3DKHpA';
+var zoomThreshold = 7;
+var bounds = [
+       [0.000, 3.0], // Southwest coordinates
+       [18.7000, 14.043328] // Northeast coordinates
+	   ];
+    var map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/geoinfotech/ckkmdu6lb4ntt17mi9p84e4e2',
+        center: [7.7434, 7.3328],
+      minZoom: 3,
+        zoom: 3,
+      maxBounds: bounds
+    });
+
+    map.addControl(
+        new MapboxGeocoder({
+            accessToken: mapboxgl.accessToken,
+            mapboxgl: mapboxgl
+        })
+    );
+map.addControl(new mapboxgl.NavigationControl());
+
+    map.on('load', function () {
+        map.addSource('states', {
+            'type': 'vector',
+          'url': 'mapbox://geoinfotech.ckknsch512j4922jzk3oay2yh-3r0ry'
+        });
+
+   // The feature-state dependent fill-opacity expression will render the hover effect
+  
+
+ map.addLayer({
+ "id": "state-fills-hover",
+        "type": "fill",
+        "source": "states",
+        "source-layer": "NIGERIASTATE",
+        "layout": {}, 
+   'maxzoom': zoomThreshold,
+            "paint": {
+                "fill-color": "#366fd9",
+              "fill-opacity": 0.7
+        },
+        "filter": ["==", "ADM1_NAME", ""]
+            
+        });
+        // When the user moves their mouse over the state-fill layer, we'll update the
+        // feature state for the feature under the mouse.
+         map.on("mousemove", function(e) {
+        var statefeatures = map.queryRenderedFeatures(e.point, { layers: ["nigeriastate"] });
+        if (statefeatures.length) {
+            map.getCanvas().style.cursor = 'pointer';
+            map.setFilter("state-fills-hover", ["==", "ADM1_NAME", statefeatures[0].properties.ADM1_NAME]);
+        } else {
+            map.setFilter("state-fills-hover", ["==", "ADM1_NAME", ""]);
+            map.getCanvas().style.cursor = 'pointer';
+        }
+    });
+
+        // When the mouse leaves the state-fill layer, update the feature state 
+        // previously hovered feature.
+      map.on("mouseout", function() {
+        map.getCanvas().style.cursor = 'auto';
+        map.setFilter("lga-fills-hover", ["==", "A", ""]);
+    });
+  
+    map.on("click", function(p) {
+        var statefeatures = map.queryRenderedFeatures(p.point, { layers: ["nigeriastate"] });
+        if (statefeatures.length) {
+            window.location = 'https://store.geoinfotech.ng/category/' + statefeatures[0].properties.ADM1_NAME
+        }
+    });  
+});
+
+
+
+
+
+
+
+// for LGA
+
+
+  map.on('load', function () {
+     map.addSource('LGA', {
+       'type': 'vector',
+       'url': 'mapbox://geoinfotech.ckkns6rrr2qyk20s26lprlbxs-13u0e'
+                      }); 
+  
+   map.addLayer({
+ "id": "lga-fills-hover",
+        "type": "fill",
+        "source": "LGA",
+        "source-layer": "NIGERIALGA",
+        "layout": {}, 
+  'minzoom': zoomThreshold,
+            "paint": {
+                "fill-color": "#366fd9",
+              "fill-opacity": 0.7
+        },
+        "filter": ["==", "ADM2_NAME", ""]
+            
+        });
+    
+   map.on("mousemove", function(r) {
+        var lgafeatures = map.queryRenderedFeatures(r.point, { layers: ["nigerialga"] });
+        if (lgafeatures.length) {
+            map.getCanvas().style.cursor = 'pointer';
+            map.setFilter("lga-fills-hover", ["==", "ADM2_NAME", lgafeatures[0].properties.ADM2_NAME]);
+        } else {
+            map.setFilter("lga-fills-hover", ["==", "ADM2_NAME", ""]);
+            map.getCanvas().style.cursor = 'pointer';
+        }
+    });
+
+        // When the mouse leaves the lga-fill layer, update the feature state 
+        // previously hovered feature.
+      map.on("mouseout", function() {
+        map.getCanvas().style.cursor = 'auto';
+        map.setFilter("lga-fills-hover", ["==", "A", ""]);
+    });
+  
+    map.on("click", function(t) {
+        var lgafeatures1 = map.queryRenderedFeatures(t.point, { layers: ["nigerialga"] });
+        if (lgafeatures1.length) {
+            window.location = 'https://store.geoinfotech.ng/category/' + lgafeatures1[0].properties.ADM2_NAME
+        }
+    });  
+});
+
+</script>
+
+</body>
+</html>
